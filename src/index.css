@@ -1,0 +1,411 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-width: 320px;
+}
+
+/* =========================================================
+   INTERACTIVE ARCHITECTURE + FLOW POLISH
+   Paste this block at the VERY BOTTOM of App.css.
+   ========================================================= */
+
+.architecture-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 18px;
+}
+
+.architecture-toolbar p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.run-flow-button,
+.simulate-button {
+  border: 1px solid rgba(156, 255, 107, 0.28);
+  background: rgba(156, 255, 107, 0.08);
+  color: var(--green);
+  border-radius: 999px;
+  padding: 11px 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 180ms ease;
+  white-space: nowrap;
+}
+
+.run-flow-button:hover,
+.simulate-button:hover {
+  transform: translateY(-2px);
+  background: rgba(156, 255, 107, 0.13);
+  border-color: rgba(156, 255, 107, 0.5);
+}
+
+.run-flow-button:disabled,
+.simulate-button:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.run-flow-button.running,
+.simulate-button.running {
+  box-shadow: 0 0 0 1px rgba(156, 255, 107, 0.15), 0 0 30px rgba(156, 255, 107, 0.12);
+}
+
+.arch-node {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.arch-node::after {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: radial-gradient(circle, rgba(156, 255, 107, 0.10), transparent 55%);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;
+}
+
+.arch-node:hover {
+  transform: translateY(-4px);
+  border-color: rgba(156, 255, 107, 0.32);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.38);
+}
+
+.arch-node:hover::after,
+.arch-node.active::after {
+  opacity: 1;
+}
+
+.arch-node.active {
+  transform: translateY(-4px) scale(1.015);
+  border-color: rgba(156, 255, 107, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(156, 255, 107, 0.12),
+    0 0 34px rgba(156, 255, 107, 0.14);
+}
+
+.arch-node small {
+  font-size: 10px;
+  line-height: 1.45;
+  color: #b6b6b6;
+}
+
+.arch-node em {
+  display: inline-flex;
+  margin-top: 7px;
+  font-style: normal;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #d4d4d4;
+}
+
+.future-dimmed {
+  opacity: 0.62;
+}
+
+.future-dimmed:hover,
+.future-dimmed.active {
+  opacity: 1;
+}
+
+.diagram-arrow {
+  position: relative;
+  transition:
+    color 180ms ease,
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+.diagram-arrow.active {
+  color: var(--green);
+  transform: translateY(2px);
+  filter: drop-shadow(0 0 9px rgba(156, 255, 107, 0.55));
+}
+
+.diagram-arrow.active svg {
+  animation: arrowPulse 700ms ease-in-out infinite alternate;
+}
+
+@keyframes arrowPulse {
+  from {
+    transform: translateY(-2px);
+  }
+  to {
+    transform: translateY(4px);
+  }
+}
+
+.architecture-flow-status {
+  margin: 20px auto 0;
+  width: min(100%, 520px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #a9a9a9;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.flow-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #666;
+  flex: 0 0 auto;
+}
+
+.flow-led.on {
+  background: var(--green);
+  box-shadow: 0 0 14px rgba(156, 255, 107, 0.85);
+  animation: ledPulse 600ms ease-in-out infinite alternate;
+}
+
+@keyframes ledPulse {
+  from { opacity: 0.45; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.15); }
+}
+
+/* Workflow cards become real interactive controls */
+.workflow-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.workflow-card:hover,
+.workflow-card.active {
+  transform: translateY(-3px);
+  border-color: rgba(156, 255, 107, 0.34);
+  background: rgba(156, 255, 107, 0.055);
+}
+
+.workflow-card svg {
+  position: absolute;
+  right: 11px;
+  bottom: 11px;
+  opacity: 0.55;
+  transition: transform 180ms ease;
+}
+
+.workflow-card.active svg {
+  transform: rotate(180deg);
+  color: var(--green);
+}
+
+.workflow-number {
+  transition: 180ms ease;
+}
+
+.workflow-number.active {
+  color: var(--green);
+  transform: scale(1.08);
+  text-shadow: 0 0 16px rgba(156, 255, 107, 0.3);
+}
+
+.workflow-detail-card {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.workflow-detail-index {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  border: 1px solid rgba(156, 255, 107, 0.2);
+  background: rgba(156, 255, 107, 0.06);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.workflow-detail-card > div:nth-child(2) > span {
+  color: var(--green);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.workflow-detail-card h3 {
+  margin: 5px 0 5px;
+  font-size: 18px;
+}
+
+.workflow-detail-card p {
+  margin: 0;
+  color: #a9a9a9;
+  font-size: 13px;
+  line-height: 1.65;
+  max-width: 760px;
+}
+
+.workflow-detail-state {
+  min-width: 125px;
+  padding-left: 18px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.workflow-detail-state span {
+  display: block;
+  color: #777;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  font-weight: 800;
+}
+
+.workflow-detail-state strong {
+  display: block;
+  margin-top: 5px;
+  color: #ddd;
+  font-size: 10px;
+}
+
+/* Queue simulation */
+.queue-simulator {
+  width: 100%;
+}
+
+.queue-sim-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.queue-state {
+  position: relative;
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease,
+    border-color 180ms ease;
+}
+
+.queue-state.active {
+  transform: translateX(6px);
+}
+
+.queue-state.active .state-dot {
+  box-shadow:
+    0 0 0 5px rgba(156, 255, 107, 0.08),
+    0 0 22px rgba(156, 255, 107, 0.28);
+}
+
+.queue-state.active strong {
+  color: var(--green);
+}
+
+.queue-state.passed {
+  opacity: 0.72;
+}
+
+.queue-state.passed .state-dot {
+  border-color: rgba(156, 255, 107, 0.35);
+}
+
+@media (max-width: 760px) {
+  .architecture-toolbar,
+  .queue-sim-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .run-flow-button,
+  .simulate-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .architecture-flow-status {
+    border-radius: 14px;
+  }
+
+  .workflow-detail-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .workflow-detail-index {
+    width: 44px;
+    height: 44px;
+  }
+
+  .workflow-detail-state {
+    grid-column: 2;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px 0 0;
+  }
+
+  .workflow-detail-card h3 {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arch-node,
+  .workflow-card,
+  .queue-state,
+  .run-flow-button,
+  .simulate-button {
+    transition: none;
+  }
+
+  .diagram-arrow.active svg,
+  .flow-led.on {
+    animation: none;
+  }
+}
